@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 "use strict"
 
-function FactoryDef(name, col, row, categories, max_ingredients, speed, moduleSlots, energyUsage, fuel) {
+function FactoryDef(name, col, row, categories, max_ingredients, speed, moduleSlots, energyUsage, fuel, pollution) {
     this.name = name
     this.icon_col = col
     this.icon_row = row
@@ -23,6 +23,7 @@ function FactoryDef(name, col, row, categories, max_ingredients, speed, moduleSl
     this.moduleSlots = moduleSlots
     this.energyUsage = energyUsage
     this.fuel = fuel
+    this.pollution = pollution
 }
 FactoryDef.prototype = {
     constructor: FactoryDef,
@@ -72,8 +73,8 @@ FactoryDef.prototype = {
     }
 }
 
-function MinerDef(name, col, row, categories, power, speed, moduleSlots, energyUsage, fuel) {
-    FactoryDef.call(this, name, col, row, categories, 0, 0, moduleSlots, energyUsage, fuel)
+function MinerDef(name, col, row, categories, power, speed, moduleSlots, energyUsage, fuel, pollution) {
+    FactoryDef.call(this, name, col, row, categories, 0, 0, moduleSlots, energyUsage, fuel, pollution)
     this.mining_power = power
     this.mining_speed = speed
 }
@@ -220,6 +221,18 @@ Factory.prototype = {
         }
         return power
     },
+    pollutionEffect: function(spec) {
+        var pollution = one
+        for (var i=0; i < this.modules.length; i++) {
+            var module = this.modules[i]
+            if (!module) {
+                continue
+            }
+            pollution = pollution.add(module.pollution)
+        }
+        pollution = pollution.mul(this.powerEffect(spec))
+        return pollution
+    },
     powerUsage: function(spec, count) {
         var power = this.factory.energyUsage
         if (this.factory.fuel) {
@@ -235,6 +248,14 @@ Factory.prototype = {
         }
         power = power.mul(this.powerEffect(spec))
         return {"fuel": "electric", "power": power}
+    },
+    pollutionReleased: function(spec, count) {
+        var pollution = this.factory.pollution
+        var minute = RationalFromFloat(60)
+        pollution = pollution.div(minute)
+        pollution = pollution.mul(count)
+        pollution = pollution.mul(this.pollutionEffect(spec))
+        return pollution
     },
     recipeRate: function(spec, recipe) {
         return recipe.time.reciprocate().mul(this.factory.speed).mul(this.speedEffect(spec))
@@ -352,6 +373,8 @@ function FactorySpec(factories) {
     // XXX: Not used yet.
     this.defaultBeacon = null
     this.defaultBeaconCount = zero
+
+    this.oilPollution = one
 }
 FactorySpec.prototype = {
     constructor: FactorySpec,
@@ -509,7 +532,8 @@ function getFactories(data) {
         one,
         0,
         zero,
-        null
+        null,
+        zero
     )
     pump.renderTooltip = renderTooltipBase
     factories.push(pump)
@@ -523,7 +547,8 @@ function getFactories(data) {
         one,
         0,
         zero,
-        null
+        null,
+        zero
     )
     reactor.renderTooltip = renderTooltipBase
     factories.push(reactor)
@@ -535,6 +560,7 @@ function getFactories(data) {
     } else {
         boiler_energy = RationalFromFloat(1800000)
     }
+    var boiler_pollution = boilerDef.energy_source.emissions_per_minute
     var boiler = new FactoryDef(
         "boiler",
         boilerDef.icon_col,
@@ -544,7 +570,8 @@ function getFactories(data) {
         one,
         0,
         boiler_energy,
-        "chemical"
+        "chemical",
+        RationalFromFloat(boiler_pollution)
     )
     boiler.renderTooltip = renderTooltipBase
     factories.push(boiler)
@@ -558,7 +585,8 @@ function getFactories(data) {
         one,
         0,
         zero,
-        null
+        null,
+        zero
     )
     launch.renderTooltip = renderTooltipBase
     factories.push(launch)
@@ -569,6 +597,10 @@ function getFactories(data) {
             if (d.energy_source && d.energy_source.type === "burner") {
                 fuel = d.energy_source.fuel_category
             }
+            var pollution = zero
+            if (d.energy_source) {
+                pollution = RationalFromFloat(d.energy_source.emissions_per_minute)
+            }
             factories.push(new FactoryDef(
                 d.name,
                 d.icon_col,
@@ -578,7 +610,8 @@ function getFactories(data) {
                 RationalFromFloat(d.crafting_speed),
                 d.module_slots,
                 RationalFromFloat(d.energy_usage),
-                fuel
+                fuel,
+                pollution
             ))
         }
     }
@@ -593,7 +626,8 @@ function getFactories(data) {
             RationalFromFloat(d.crafting_speed),
             d.module_slots,
             RationalFromFloat(d.energy_usage),
-            null
+            null,
+            zero
         ))
     }
     for (var name in data["mining-drill"]) {
@@ -611,6 +645,10 @@ function getFactories(data) {
         } else {
             power = null
         }
+        var pollution = zero
+        if (d.energy_source) {
+            pollution = RationalFromFloat(d.energy_source.emissions_per_minute)
+        }
         factories.push(new MinerDef(
             d.name,
             d.icon_col,
@@ -620,7 +658,8 @@ function getFactories(data) {
             RationalFromFloat(d.mining_speed),
             d.module_slots,
             RationalFromFloat(d.energy_usage),
-            fuel
+            fuel,
+            pollution
         ))
     }
     return factories

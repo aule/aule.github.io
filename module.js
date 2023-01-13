@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 "use strict"
 
-function Module(name, col, row, category, order, productivity, speed, power, limit) {
+function Module(name, col, row, category, order, productivity, speed, power, pollution, limit) {
     // Other module effects not modeled by this calculator.
     this.name = name
     this.icon_col = col
@@ -23,6 +23,7 @@ function Module(name, col, row, category, order, productivity, speed, power, lim
     this.productivity = productivity
     this.speed = speed
     this.power = power
+    this.pollution = pollution
     this.limit = {}
     if (limit) {
         for (var i = 0; i < limit.length; i++) {
@@ -109,6 +110,22 @@ Module.prototype = {
             }
             t.appendChild(new Text(sign + productivity.toDecimal() + "%"))
         }
+        if (!this.pollution.isZero()) {
+            var pollution = this.pollution.mul(hundred)
+            if (first) {
+                t.appendChild(document.createElement("br"))
+            } else {
+                first = true
+            }
+            b = document.createElement("b")
+            b.textContent = "Pollution: "
+            t.appendChild(b)
+            var sign = ""
+            if (!this.pollution.less(zero)) {
+                sign = "+"
+            }
+            t.appendChild(new Text(sign + pollution.toDecimal() + "%"))
+        }
         return t
     }
 }
@@ -164,6 +181,7 @@ function getModules(data) {
         var speed = RationalFromFloat((effect.speed || {}).bonus || 0)
         var productivity = RationalFromFloat((effect.productivity || {}).bonus || 0)
         var power = RationalFromFloat((effect.consumption || {}).bonus || 0)
+        var pollution = RationalFromFloat((effect.pollution || {}).bonus || 0)
         var limit = item.limitation
         modules[name] = new Module(
             name,
@@ -174,6 +192,7 @@ function getModules(data) {
             productivity,
             speed,
             power,
+            pollution,
             limit
         )
     }

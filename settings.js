@@ -442,6 +442,24 @@ function getMprod() {
     return RationalFromFloats(Number(mprod), 100)
 }
 
+// oil pollution
+var DEFAULT_OIL_POLLUTION = RationalFromFloats(5000, 12)
+
+function renderOilPollution(settings) {
+    var oilpol = DEFAULT_OIL_POLLUTION
+    if ("oilpol" in settings) {
+        oilpol = settings.oilpol
+    }
+    var oilpolInput = document.getElementById("oilpol")
+    oilpolInput.value = oilpol
+    spec.oilPollution = getOilpol()
+}
+
+function getOilpol() {
+    var oilpol = document.getElementById("oilpol").value
+    return RationalFromFloat(Number(oilpol))
+}
+
 // default module
 function renderDefaultModule(settings) {
     var defaultModule = null
@@ -606,6 +624,7 @@ function renderSettings(settings) {
     renderBelt(settings)
     renderPipe(settings)
     renderMiningProd(settings)
+    renderOilPollution(settings)
     renderDefaultModule(settings)
     renderDefaultBeacon(settings)
     renderVisualizerType(settings)

@@ -61,6 +61,10 @@ function formatSettings(targets) {
         var mprod = spec.miningProd.mul(hundred).toString()
         settings += "mprod=" + mprod + "&"
     }
+    if (!spec.oilPollution.equal(DEFAULT_OIL_POLLUTION)) {
+        var oilpol = spec.oilPollution.toString()
+        settings += "oilpol=" + oilpol + "&"
+    }
     if (spec.defaultModule) {
         settings += "dm=" + spec.defaultModule.shortName() + "&"
     }

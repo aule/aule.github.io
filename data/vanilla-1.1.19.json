@@ -21,6 +21,11 @@
             "crafting_categories": [ "crafting", "basic-crafting", "advanced-crafting" ],
             "crafting_speed": 0.5,
             "energy_usage": 75000,
+            "energy_source": {
+                "emissions_per_minute": 4,
+                "type": "electric",
+                "usage_priority": "secondary-input"
+            },
             "icon_col": 8,
             "icon_row": 0,
             "localized_name": {
@@ -34,6 +39,11 @@
             "crafting_categories": [ "basic-crafting", "crafting", "advanced-crafting", "crafting-with-fluid" ],
             "crafting_speed": 0.75,
             "energy_usage": 150000,
+            "energy_source": {
+                "emissions_per_minute": 3,
+                "type": "electric",
+                "usage_priority": "secondary-input"
+            },
             "icon_col": 9,
             "icon_row": 0,
             "localized_name": {
@@ -47,6 +57,11 @@
             "crafting_categories": [ "basic-crafting", "crafting", "advanced-crafting", "crafting-with-fluid" ],
             "crafting_speed": 1.25,
             "energy_usage": 375000,
+            "energy_source": {
+                "emissions_per_minute": 2,
+                "type": "electric",
+                "usage_priority": "secondary-input"
+            },
             "icon_col": 10,
             "icon_row": 0,
             "localized_name": {
@@ -60,6 +75,11 @@
             "crafting_categories": [ "centrifuging" ],
             "crafting_speed": 1,
             "energy_usage": 350000,
+            "energy_source": {
+                "emissions_per_minute": 4,
+                "type": "electric",
+                "usage_priority": "secondary-input"
+            },
             "icon_col": 13,
             "icon_row": 1,
             "localized_name": {
@@ -73,6 +93,11 @@
             "crafting_categories": [ "chemistry" ],
             "crafting_speed": 1,
             "energy_usage": 210000,
+            "energy_source": {
+                "emissions_per_minute": 4,
+                "type": "electric",
+                "usage_priority": "secondary-input"
+            },
             "icon_col": 14,
             "icon_row": 1,
             "localized_name": {
@@ -86,6 +111,11 @@
             "crafting_categories": [ "oil-processing" ],
             "crafting_speed": 1,
             "energy_usage": 420000,
+            "energy_source": {
+                "emissions_per_minute": 6,
+                "type": "electric",
+                "usage_priority": "secondary-input"
+            },
             "icon_col": 0,
             "icon_row": 9,
             "localized_name": {

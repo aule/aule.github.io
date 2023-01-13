@@ -77,6 +77,17 @@ function alignPower(x, prec) {
     return align(displayCount(x), prec) + " " + powerSuffixes[i]
 }
 
+function alignPollution(x, prec) {
+    x = x.mul(displayRateFactor)
+    var thousand = RationalFromFloat(1000)
+    var i = 0
+    while (thousand.less(x) && i < powerSuffixes.length - 1) {
+        x = x.div(thousand)
+        i++
+    }
+    return align(displayCount(x)) + powerSuffixes[i][0] + " /" + rateName
+}
+
 var sortOrder = "topo"
 
 function pruneSpec(totals) {
@@ -560,6 +571,12 @@ RecipeRow.prototype = {
         }
         return zero
     },
+    totalPollution: function() {
+        if (this.factoryRow.pollution) {
+            return this.factoryRow.pollution
+        }
+        return zero
+    },
     csv: function() {
         var rate = this.rate.mul(this.recipe.gives(this.item, spec))
         var parts = [
@@ -637,6 +654,7 @@ function FactoryRow(row, recipe) {
     this.factory = null
     this.count = zero
     this.power = null
+    this.pollution = null
 
     this.factoryCells = new FactoryCountCells(row)
 
@@ -696,6 +714,13 @@ function FactoryRow(row, recipe) {
     powerCell.appendChild(tt)
     this.powerNode = tt
     this.node.appendChild(powerCell)
+
+    var pollutionCell = document.createElement("td")
+    pollutionCell.classList.add("factory", "right-align")
+    let poltt = document.createElement("tt")
+    pollutionCell.appendChild(poltt)
+    this.pollutionNode = poltt
+    this.node.appendChild(pollutionCell)
 }
 FactoryRow.prototype = {
     constructor: FactoryRow,
@@ -711,6 +736,9 @@ FactoryRow.prototype = {
             this.fuelCell.appendChild(new Text(" \u00d7"))
             this.powerNode.textContent = alignRate(power.power.div(preferredFuel.value)) + "/" + rateName
         }
+    },
+    setPollution: function(pollution) {
+        this.pollutionNode.textContent = alignPollution(pollution)
     },
     setHasModules: function() {
         this.node.classList.remove("no-mods")
@@ -728,6 +756,10 @@ FactoryRow.prototype = {
         let {count, factory} = this.factoryCells.setCount(this.recipe, rate)
         if (count.isZero()) {
             this.setHasNoModules()
+            if (this.recipe.name == "crude-oil") {
+                this.pollution = rate.div(spec.oilPollution)
+                this.setPollution(this.pollution)
+            }
             return
         }
         this.count = count
@@ -769,6 +801,8 @@ FactoryRow.prototype = {
         }
         this.power = this.factory.powerUsage(spec, this.count)
         this.setPower(this.power)
+        this.pollution = this.factory.pollutionReleased(spec, this.count)
+        this.setPollution(this.pollution)
     },
     updateDisplayedModules: function() {
         var moduleCount = spec.moduleCount(this.recipe)
@@ -836,7 +870,9 @@ FactoryRow.prototype = {
         }
         if (this.factory) {
             parts.push(displayCount(this.power.power))
+            parts.push(displayCount(this.pollution))
         } else {
+            parts.push("")
             parts.push("")
         }
         return parts.join(",")
@@ -954,6 +990,13 @@ GroupRow.prototype = {
         }
         return power
     },
+    totalPollution: function() {
+        var power = zero
+        for (var i = 0; i < this.factoryRows.length; i++) {
+            power = power.add(this.factoryRows[i].pollution)
+        }
+        return power
+    },
     csv: function() {
         var lines = []
         for (var i = 0; i < this.itemNames.length; i++) {
@@ -1045,6 +1088,7 @@ function RecipeTable(node) {
         Header("beacons", 1),
         Header(""),
         Header("power", 2),
+        Header("pollution", 1),
         Header("")
     ]
     var header = document.createElement("tr")
@@ -1084,6 +1128,24 @@ function RecipeTable(node) {
     totalCell.appendChild(this.totalNode)
     this.totalRow.appendChild(totalCell)
     this.totalRow.appendChild(document.createElement("td"))
+    this.totalPolRow = document.createElement("tr")
+    this.totalPolRow.classList.add("display-row", "pollution-row")
+    var dummyWastePol = document.createElement("td")
+    dummyWastePol.classList.add("waste")
+    this.totalRow.appendChild(dummyWastePol)
+    var totalPolLabelCell = document.createElement("td")
+    totalPolLabelCell.colSpan = 11
+    totalPolLabelCell.classList.add("right-align")
+    var totalPolLabel = document.createElement("b")
+    totalPolLabel.textContent = "total pollution:"
+    totalPolLabelCell.appendChild(totalPolLabel)
+    this.totalPolRow.appendChild(totalPolLabelCell)
+    var totalPolCell = document.createElement("td")
+    totalPolCell.classList.add("right-align")
+    this.totalPolNode = document.createElement("tt")
+    totalPolCell.appendChild(this.totalPolNode)
+    this.totalPolRow.appendChild(totalPolCell)
+    this.totalPolRow.appendChild(document.createElement("td"))
 
     this.rowArray = []
     this.rows = {}
@@ -1156,7 +1218,8 @@ RecipeTable.prototype = {
         var sameRows = true
         var i = 0
         var totalPower = zero
-        var csvLines = ["item,item rate,factory,count,modules,beacon module,beacon count,power"]
+        var totalPollution = zero
+        var csvLines = ["item,item rate,factory,count,modules,beacon module,beacon count,power,pollution"]
         var csvWidth = csvLines[0].length
         var knownRows = {}
         var drop = []
@@ -1202,6 +1265,7 @@ RecipeTable.prototype = {
                 sameRows = false
             }
             totalPower = totalPower.add(row.totalPower())
+            totalPollution = totalPollution.add(row.totalPollution())
             var newCSVLines = row.csv()
             for (var j = 0; j < newCSVLines.length; j++) {
                 var csvLine = newCSVLines[j]
@@ -1236,6 +1300,8 @@ RecipeTable.prototype = {
         }
         this.node.appendChild(this.totalRow)
         this.totalNode.textContent = alignPower(totalPower)
+        this.node.appendChild(this.totalPolRow)
+        this.totalPolNode.textContent = alignPollution(totalPollution)
         var csv = document.getElementById("csv")
         csv.value = csvLines.join("\n") + "\n"
         csv.cols = csvWidth + 2

@@ -214,6 +214,12 @@ function changeMprod() {
     itemUpdate()
 }
 
+// Triggered when the oil pollution is changed.
+function changeOilpol() {
+    spec.oilPollution = getOilpol()
+    itemUpdate()
+}
+
 // Triggered when the default module is changed.
 function changeDefaultModule(module) {
     spec.setDefaultModule(module)
