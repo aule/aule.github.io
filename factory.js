@@ -248,7 +248,7 @@ Factory.prototype = {
                 efficiency = efficiency.add(beaconModule.power.mul(this.beaconCount).mul(half))
             }
         }
-        return efficiency.div(modules["effectivity-module-3"].power).mul(minusOne)
+        return efficiency.div(modules["effectivity-module-3"].power).mul(minusOne).div(half)
     },
     powerUsage: function(spec, count) {
         var power = this.factory.energyUsage
