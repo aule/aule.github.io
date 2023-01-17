@@ -216,7 +216,7 @@ Factory.prototype = {
             }
         }
         var minimum = RationalFromFloats(1, 5)
-        if (power.less(minimum)) {
+        if (power.less(minimum) || spec.efficiencyEnabled) {
             power = minimum
         }
         return power
@@ -232,6 +232,23 @@ Factory.prototype = {
         }
         pollution = pollution.mul(this.powerEffect(spec))
         return pollution
+    },
+    efficiencyRequired: function(spec) {
+        var efficiency = RationalFromFloats(80, 100)
+        for (var i=0; i < this.modules.length; i++) {
+            var module = this.modules[i]
+            if (!module) {
+                continue
+            }
+            efficiency = efficiency.add(module.power)
+        }
+        if (this.modules.length > 0) {
+            var beaconModule = this.beaconModule
+            if (beaconModule) {
+                efficiency = efficiency.add(beaconModule.power.mul(this.beaconCount).mul(half))
+            }
+        }
+        return efficiency.div(modules["effectivity-module-3"].power).mul(minusOne)
     },
     powerUsage: function(spec, count) {
         var power = this.factory.energyUsage

@@ -65,6 +65,9 @@ function formatSettings(targets) {
         var oilpol = spec.oilPollution.toString()
         settings += "oilpol=" + oilpol + "&"
     }
+    if (spec.efficiencyEnabled != DEFAULT_EFFICIENCY) {
+        settings += "ae=on&"
+    }
     if (spec.defaultModule) {
         settings += "dm=" + spec.defaultModule.shortName() + "&"
     }

@@ -672,6 +672,18 @@ function FactoryRow(row, recipe) {
     this.dropdowns = []
     this.modules = []
 
+    var efficiencyCell = document.createElement("td")
+    efficiencyCell.classList.add("pad", "module", "efficiency", "factory")
+    var efficiencyImage = getImage(modules["effectivity-module-3"])
+    efficiencyImage.classList.add("display")
+    efficiencyCell.appendChild(efficiencyImage)
+    var efficiencyCellX = document.createElement("span")
+    efficiencyCellX.appendChild(new Text(" \u00D7 "))
+    efficiencyCell.appendChild(efficiencyCellX)
+    this.efficiencyNode = document.createElement("tt")
+    efficiencyCell.appendChild(this.efficiencyNode)
+    this.node.appendChild(efficiencyCell)
+
     var beaconCell = document.createElement("td")
     beaconCell.classList.add("pad", "module", "factory")
     let {inputs} = moduleDropdown(
@@ -746,6 +758,14 @@ FactoryRow.prototype = {
     setHasNoModules: function() {
         this.node.classList.add("no-mods")
     },
+    setEfficiency: function(enabled, efficiency) {
+        if (enabled && zero.less(efficiency)) {
+            this.node.classList.remove("no-efficiency")
+        } else {
+            this.node.classList.add("no-efficiency")
+        }
+        this.efficiencyNode.textContent = alignCount(efficiency)
+    },
     // Call whenever the minimum factory or factory count might change (e.g. in
     // response to speed modules being added/removed).
     //
@@ -794,11 +814,14 @@ FactoryRow.prototype = {
                 this.modulesCell.appendChild(this.copyButton)
             }
         }
+        var showEfficiency = false
         if (this.modules.length > 0) {
             this.setHasModules()
+            showEfficiency = spec.efficiencyEnabled
         } else {
             this.setHasNoModules()
         }
+        this.setEfficiency(showEfficiency, this.factory.efficiencyRequired(spec))
         this.power = this.factory.powerUsage(spec, this.count)
         this.setPower(this.power)
         this.pollution = this.factory.pollutionReleased(spec, this.count)
@@ -1085,7 +1108,7 @@ function RecipeTable(node) {
         Header("surplus/" + rateName),
         Header("factories", 2),
         Header("modules", 1),
-        Header("beacons", 1),
+        Header("beacons", 2),
         Header(""),
         Header("power", 2),
         Header("pollution", 1),

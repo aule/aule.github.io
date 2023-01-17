@@ -200,6 +200,9 @@ tr.ignore img.display {
 tr.no-mods td.module * {
     display: none;
 }
+tr.no-efficiency td.efficiency * {
+    display: none;
+}
 td.waste-hide, th.waste-hide {
     display: none;
 }

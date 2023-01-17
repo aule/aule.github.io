@@ -461,6 +461,23 @@ function getOilpol() {
     return RationalFromFloat(Number(oilpol))
 }
 
+// auto efficiency
+var DEFAULT_EFFICIENCY = false
+
+function renderEfficiency(settings) {
+    var ae = DEFAULT_EFFICIENCY
+    if ("ae" in settings) {
+        ae = settings.ae == "on"
+    }
+    setEfficiency(ae)
+    var input = document.getElementById("efficiency")
+    input.checked = ae
+}
+
+function setEfficiency(enabled) {
+    spec.efficiencyEnabled = enabled
+}
+
 // default module
 function renderDefaultModule(settings) {
     var defaultModule = null
@@ -626,6 +643,7 @@ function renderSettings(settings) {
     renderPipe(settings)
     renderMiningProd(settings)
     renderOilPollution(settings)
+    renderEfficiency(settings)
     renderDefaultModule(settings)
     renderDefaultBeacon(settings)
     renderVisualizerType(settings)

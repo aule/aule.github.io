@@ -220,6 +220,12 @@ function changeOilpol() {
     itemUpdate()
 }
 
+// Triggered when the auto efficiency is toggled.
+function changeEfficiency() {
+    setEfficiency(event.target.checked)
+    itemUpdate()
+}
+
 // Triggered when the default module is changed.
 function changeDefaultModule(module) {
     spec.setDefaultModule(module)
