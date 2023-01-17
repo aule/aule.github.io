@@ -728,7 +728,7 @@ function FactoryRow(row, recipe) {
     this.node.appendChild(powerCell)
 
     var pollutionCell = document.createElement("td")
-    pollutionCell.classList.add("factory", "right-align")
+    pollutionCell.classList.add("pad", "factory", "right-align")
     let poltt = document.createElement("tt")
     pollutionCell.appendChild(poltt)
     this.pollutionNode = poltt
