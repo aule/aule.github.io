@@ -443,15 +443,16 @@ function getMprod() {
 }
 
 // oil pollution
-var DEFAULT_OIL_POLLUTION = RationalFromFloats(5000, 12)
+// matches 50% yield with 250% speed and max efficiency without prod bonus
+var DEFAULT_OIL_POLLUTION = RationalFromFloat(375)
 
 function renderOilPollution(settings) {
     var oilpol = DEFAULT_OIL_POLLUTION
     if ("oilpol" in settings) {
-        oilpol = settings.oilpol
+        oilpol = RationalFromString(settings.oilpol)
     }
     var oilpolInput = document.getElementById("oilpol")
-    oilpolInput.value = oilpol
+    oilpolInput.value = oilpol.toDecimal(2)
     spec.oilPollution = getOilpol()
 }
 
