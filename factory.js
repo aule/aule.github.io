@@ -121,7 +121,7 @@ MinerDef.prototype.renderTooltip = function() {
 }
 
 function RocketLaunchDef(name, col, row, categories, max_ingredients, speed, moduleSlots, energyUsage, fuel) {
-    FactoryDef.call(this, name, col, row, categories, max_ingredients, speed, moduleSlots, energyUsage, fuel)
+    FactoryDef.call(this, name, col, row, categories, max_ingredients, speed, moduleSlots, energyUsage, fuel, zero)
 }
 RocketLaunchDef.prototype = Object.create(FactoryDef.prototype)
 RocketLaunchDef.prototype.makeFactory = function(spec, recipe) {
@@ -129,7 +129,7 @@ RocketLaunchDef.prototype.makeFactory = function(spec, recipe) {
 }
 
 function RocketSiloDef(name, col, row, categories, max_ingredients, speed, moduleSlots, energyUsage, fuel) {
-    FactoryDef.call(this, name, col, row, categories, max_ingredients, speed, moduleSlots, energyUsage, fuel)
+    FactoryDef.call(this, name, col, row, categories, max_ingredients, speed, moduleSlots, energyUsage, fuel, zero)
 }
 RocketSiloDef.prototype = Object.create(FactoryDef.prototype)
 RocketSiloDef.prototype.makeFactory = function(spec, recipe) {
@@ -602,8 +602,7 @@ function getFactories(data) {
         one,
         0,
         zero,
-        null,
-        zero
+        null
     )
     launch.renderTooltip = renderTooltipBase
     factories.push(launch)
